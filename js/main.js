@@ -50,21 +50,23 @@
 //
 //dog.walk();
 //
-const Song = Backbone.Model.extend();
 
-const Songs = Backbone.Collection.extend({
-  model: Song,
-});
+// COLLECTIONS ==============>
+//const Song = Backbone.Model.extend();
+//
+//const Songs = Backbone.Collection.extend({
+//  model: Song,
+//});
+//
+//const songs = new Songs([
+//  new Song({ title: "Song 1" }),
+//  new Song({ title: "Song 2" }),
+//  new Song({ title: "Song 3" }),
+//]);
+//
+//songs.add(new Song({ title: "Song 4" }));
 
-const songs = new Songs([
-  new Song({ title: "Song 1" }),
-  new Song({ title: "Song 2" }),
-  new Song({ title: "Song 3" }),
-]);
-
-songs.add(new Song({ title: "Song 4" }));
-
-// songs.at(0) access to the first element of the collection array object 
+// songs.at(0) access to the first element of the collection array object
 // songs.get("c1") cid: c1 backbone assign a temporal id to each element og the collection
 // songs.remove(songs.at(0));
 // songs.add(new Song({title: "Song 5", genre: "Jazz", downloads: 110}), { at: 0 });
@@ -94,7 +96,109 @@ songs.add(new Song({ title: "Song 4" }));
 //const songs = new Songs();
 //songs.fetch();
 
+// COLLECTIONS ==============>
+if (window.__backboneAgent) {
+  window.__backboneAgent.handleBackbone(Backbone);
+}
 
-// In the first few sections, we do all the coding here.
-// Later, you'll see how to organize your code into separate
-// files and modules.
+const Song = Backbone.Model.extend();
+const Songs = Backbone.Collection.extend({
+  model: Song,
+});
+
+const SongView = Backbone.View.extend({
+  tagName: "li",
+  className: "song",
+  attributes: {
+    "data-genre": "Jazz",
+  },
+
+  events: {
+    click: "onClick",
+    "click .bookmark": "onClickBookmark",
+  },
+
+  onClick: function () {
+    console.log("lalalala");
+  },
+  onClickBookmark: function (e) {
+    e.stopPropagation();
+    console.log("Bookmark");
+  },
+
+  render: function () {
+    this.$el.html(
+      this.model.get("title") +
+        "<button>Listen</button> <button class='bookmark'>Bookmark</button>"
+    );
+    this.$el.attr("id", this.model.id);
+
+    return this;
+  },
+});
+
+const SongsView = Backbone.View.extend({
+  initialize: function () {
+    this.model.on("add", this.onSongAdded, this);
+    this.model.on("remove", this.onSongRemove, this);
+  },
+
+  onSongAdded: function (song) {
+    var songView = new SongView({ model: song });
+
+    this.$el.append(songView.render().$el);
+  },
+
+  onSongRemove: function (song) {
+    this.$el.find("li#" + song.id).remove(); 
+  },
+  render: function () {
+    var self = this;
+    this.model.each(function (song) {
+      const songView = new SongView({ model: song });
+      self.$el.append(songView.render().$el);
+    });
+  },
+});
+
+//const song = new Song({ title: "Yiro Songs" });
+const songs = new Songs([
+  new Song({ id: 1, title: "Song1" }),
+  new Song({ id: 2, title: "Song2" }),
+  new Song({ id: 3, title: "Song3" }),
+  new Song({ id: 4, title: "Song4" }),
+  new Song({ id: 5, title: "Song5" }),
+]);
+
+const songsView = new SongsView({ el: "#container", model: songs });
+songsView.render();
+
+const Cancion = Backbone.Model.extend({
+  defaults: {
+    listeners: 0,
+  },
+});
+
+var CancionView = Backbone.View.extend({
+  initialize: function () {
+    this.model.on("change", this.render, this);
+  },
+
+  render: function () {
+    this.$el.html(
+      this.model.get("title") + " -Listeners: " + this.model.get("listeners")
+    );
+    return this;
+  },
+});
+
+var cancion = new Cancion({ title: "Rock rock" });
+
+var cancionView = new CancionView({ el: "#container-cancion", model: cancion });
+
+cancionView.render();
+
+//const songView = new SongView({ el: "#container", model: song });
+//songView.render();
+
+//$("#container").html(songView.render().$el);
