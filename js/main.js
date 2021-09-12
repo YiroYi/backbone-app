@@ -202,3 +202,32 @@ cancionView.render();
 //songView.render();
 
 //$("#container").html(songView.render().$el);
+
+
+//===========> EVENTS
+const person = {
+  name: "Yiro",
+  walk: function() {
+    this.trigger("walking", {
+      speed: 1,
+      time: "08:00"
+    })
+  }
+}
+
+_.extend(person, Backbone.Events);
+ 
+//person.once just run the event the first time is called.
+
+person.on("walking", function(e) {
+  console.log("Personis walking");
+  console.log("Event Args", e);
+});
+
+person.walk();
+
+//person.off("walking"); unsuscribe the object to the events
+//===========> EVENTS
+
+
+
